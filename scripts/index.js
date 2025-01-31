@@ -30,12 +30,13 @@ function deleteCard(cardElement) {
 }
 
 // @todo: Вывести карточки на страницу
+// вместо for используется метод массива .forEach()
 function renderCards() {
     placesList.innerHTML = ""; // Очищаем список
-    for (let i = 0; i < initialCards.length; i++) {
-        let cardElement = createCard(initialCards[i], deleteCard);
+    initialCards.forEach(card => {
+        const cardElement = createCard(card, deleteCard);
         placesList.appendChild(cardElement);
-    }
+    });
 }
 
 // @todo: Запуск функции при загрузке страницы
