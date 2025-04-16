@@ -1,49 +1,81 @@
 import { initialCards } from './scripts/cards.js';
 import './pages/index.css';
+import { createCard, deleteCard, toggleLike } from './components/card.js';
+import { openModal, closeModal } from './components/modal.js';
 
-// @todo: Темплейт карточки
-const cardTemplate = document.querySelector("#card-template").content;
-
-// @todo: DOM узлы
+// DOM-узлы
 const placesList = document.querySelector(".places__list");
+const popupEdit = document.querySelector('.popup_type_edit');
+const popupAddCard = document.querySelector('.popup_type_new-card');
+const popupImage = document.querySelector('.popup_type_image');
+const popupImagePicture = popupImage.querySelector('.popup__image');
+const popupImageCaption = popupImage.querySelector('.popup__caption');
 
-// @todo: Функция создания карточки
-// все переменные, которые не изменяются, объявлены через const
-function createCard(cardData, deleteCallback) {
-    const cardElement = cardTemplate.cloneNode(true).firstElementChild;
-    const cardImage = cardElement.querySelector(".card__image");
-    const cardTitle = cardElement.querySelector(".card__title");
-    const deleteButton = cardElement.querySelector(".card__delete-button");
+const editButton = document.querySelector('.profile__edit-button');
+const addButton = document.querySelector('.profile__add-button');
+const closeButtons = document.querySelectorAll('.popup__close');
 
-    cardTitle.textContent = cardData.name;
-    cardImage.src = cardData.link;
-    cardImage.alt = cardData.name;
+const profileTitle = document.querySelector('.profile__title');
+const profileDescription = document.querySelector('.profile__description');
 
-    deleteButton.addEventListener("click", function() {
-        deleteCallback(cardElement);
-    });
-    
-    return cardElement;
-}
+const formEditProfile = document.forms['edit-profile'];
+const nameInput = formEditProfile.querySelector('.popup__input_type_name');
+const descriptionInput = formEditProfile.querySelector('.popup__input_type_description');
 
-// @todo: Функция удаления карточки
-//функция удаления карточки теперь не зависит от родительского элемента placesList
-function deleteCard(cardElement) {
-    cardElement.remove();
-}
+const formAddCard = document.forms['new-place'];
+const placeNameInput = formAddCard.querySelector('.popup__input_type_card-name');
+const placeLinkInput = formAddCard.querySelector('.popup__input_type_url');
 
-// @todo: Вывести карточки на страницу
-// вместо for используется метод массива .forEach()
-function renderCards() {
-    placesList.innerHTML = ""; // Очищаем список
-    initialCards.forEach(card => {
-        const cardElement = createCard(card, deleteCard);
-        placesList.appendChild(cardElement);
-    });
-}
-
-// @todo: Запуск функции при загрузке страницы
-//  устаревший DOMContentLoaded заменён на window.addEventListener("load", () => {})
-window.addEventListener("load", () => {
-    renderCards();
+// Открытие и закрытие попапов
+editButton.addEventListener('click', () => {
+  nameInput.value = profileTitle.textContent;
+  descriptionInput.value = profileDescription.textContent;
+  openModal(popupEdit);
 });
+
+addButton.addEventListener('click', () => openModal(popupAddCard));
+
+closeButtons.forEach(button => {
+  const popup = button.closest('.popup');
+  button.addEventListener('click', () => closeModal(popup));
+});
+
+// Сохранение данных профиля
+formEditProfile.addEventListener('submit', function (evt) {
+  evt.preventDefault();
+  profileTitle.textContent = nameInput.value;
+  profileDescription.textContent = descriptionInput.value;
+  closeModal(popupEdit);
+});
+
+// Добавление новой карточки
+formAddCard.addEventListener('submit', function (evt) {
+  evt.preventDefault();
+  const newCardData = {
+    name: placeNameInput.value,
+    link: placeLinkInput.value,
+  };
+  const newCard = createCard(newCardData, deleteCard, toggleLike, handleImageClick);
+  placesList.prepend(newCard);
+  formAddCard.reset();
+  closeModal(popupAddCard);
+});
+
+// Открытие попапа изображения
+function handleImageClick(cardData) {
+  popupImagePicture.src = cardData.link;
+  popupImagePicture.alt = cardData.name;
+  popupImageCaption.textContent = cardData.name;
+  openModal(popupImage);
+}
+
+// Отображение стартовых карточек
+function renderCards() {
+  placesList.innerHTML = "";
+  initialCards.forEach(card => {
+    const cardElement = createCard(card, deleteCard, toggleLike, handleImageClick);
+    placesList.appendChild(cardElement);
+  });
+}
+
+window.addEventListener("load", renderCards);
