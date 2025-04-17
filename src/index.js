@@ -51,29 +51,31 @@ function renderCards() {
   });
 }
 
-// ----------------- Слушатели событий -----------------
+// ----------------- Функции-обработчики -----------------
 
-editButton.addEventListener('click', () => {
+function handleEditButtonClick() {
   nameInput.value = profileTitle.textContent;
   descriptionInput.value = profileDescription.textContent;
   openModal(popupEdit);
-});
+}
 
-addButton.addEventListener('click', () => openModal(popupAddCard));
+function handleAddButtonClick() {
+  openModal(popupAddCard);
+}
 
-closeButtons.forEach(button => {
-  const popup = button.closest('.popup');
-  button.addEventListener('click', () => closeModal(popup));
-});
+function handleCloseButtonClick(evt) {
+  const popup = evt.target.closest('.popup');
+  closeModal(popup);
+}
 
-formEditProfile.addEventListener('submit', function (evt) {
+function handleProfileFormSubmit(evt) {
   evt.preventDefault();
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = descriptionInput.value;
   closeModal(popupEdit);
-});
+}
 
-formAddCard.addEventListener('submit', function (evt) {
+function handleAddCardFormSubmit(evt) {
   evt.preventDefault();
   const newCardData = {
     name: placeNameInput.value,
@@ -83,7 +85,15 @@ formAddCard.addEventListener('submit', function (evt) {
   placesList.prepend(newCard);
   formAddCard.reset();
   closeModal(popupAddCard);
-});
+}
+
+// ----------------- Навешивание слушателей -----------------
+
+editButton.addEventListener('click', handleEditButtonClick);
+addButton.addEventListener('click', handleAddButtonClick);
+closeButtons.forEach(button => button.addEventListener('click', handleCloseButtonClick));
+formEditProfile.addEventListener('submit', handleProfileFormSubmit);
+formAddCard.addEventListener('submit', handleAddCardFormSubmit);
 
 // ----------------- Инициализация при загрузке -----------------
 
