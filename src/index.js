@@ -1,28 +1,28 @@
+// ----------------- Импорты -----------------
 import { initialCards } from './scripts/cards.js';
 import './pages/index.css';
 import { createCard, deleteCard, toggleLike } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
 
-// Установим анимацию всем попапам один раз при загрузке страницы
-document.querySelectorAll('.popup').forEach(popup => {
-  popup.classList.add('popup_is-animated');
-});
+// ----------------- Глобальные переменные -----------------
 
-// DOM-узлы
-const placesList = document.querySelector(".places__list");
+// Попапы
 const popupEdit = document.querySelector('.popup_type_edit');
 const popupAddCard = document.querySelector('.popup_type_new-card');
 const popupImage = document.querySelector('.popup_type_image');
 const popupImagePicture = popupImage.querySelector('.popup__image');
 const popupImageCaption = popupImage.querySelector('.popup__caption');
 
+// Кнопки
 const editButton = document.querySelector('.profile__edit-button');
 const addButton = document.querySelector('.profile__add-button');
 const closeButtons = document.querySelectorAll('.popup__close');
 
+// Профиль
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
 
+// Формы и поля
 const formEditProfile = document.forms['edit-profile'];
 const nameInput = formEditProfile.querySelector('.popup__input_type_name');
 const descriptionInput = formEditProfile.querySelector('.popup__input_type_description');
@@ -31,7 +31,28 @@ const formAddCard = document.forms['new-place'];
 const placeNameInput = formAddCard.querySelector('.popup__input_type_card-name');
 const placeLinkInput = formAddCard.querySelector('.popup__input_type_url');
 
-// Открытие и закрытие попапов
+// Карточки
+const placesList = document.querySelector(".places__list");
+
+// ----------------- Функции -----------------
+
+function handleImageClick(cardData) {
+  popupImagePicture.src = cardData.link;
+  popupImagePicture.alt = cardData.name;
+  popupImageCaption.textContent = cardData.name;
+  openModal(popupImage);
+}
+
+function renderCards() {
+  placesList.innerHTML = "";
+  initialCards.forEach(card => {
+    const cardElement = createCard(card, deleteCard, toggleLike, handleImageClick);
+    placesList.appendChild(cardElement);
+  });
+}
+
+// ----------------- Слушатели событий -----------------
+
 editButton.addEventListener('click', () => {
   nameInput.value = profileTitle.textContent;
   descriptionInput.value = profileDescription.textContent;
@@ -45,7 +66,6 @@ closeButtons.forEach(button => {
   button.addEventListener('click', () => closeModal(popup));
 });
 
-// Сохранение данных профиля
 formEditProfile.addEventListener('submit', function (evt) {
   evt.preventDefault();
   profileTitle.textContent = nameInput.value;
@@ -53,7 +73,6 @@ formEditProfile.addEventListener('submit', function (evt) {
   closeModal(popupEdit);
 });
 
-// Добавление новой карточки
 formAddCard.addEventListener('submit', function (evt) {
   evt.preventDefault();
   const newCardData = {
@@ -66,21 +85,10 @@ formAddCard.addEventListener('submit', function (evt) {
   closeModal(popupAddCard);
 });
 
-// Открытие попапа изображения
-function handleImageClick(cardData) {
-  popupImagePicture.src = cardData.link;
-  popupImagePicture.alt = cardData.name;
-  popupImageCaption.textContent = cardData.name;
-  openModal(popupImage);
-}
+// ----------------- Инициализация при загрузке -----------------
 
-// Отображение стартовых карточек
-function renderCards() {
-  placesList.innerHTML = "";
-  initialCards.forEach(card => {
-    const cardElement = createCard(card, deleteCard, toggleLike, handleImageClick);
-    placesList.appendChild(cardElement);
-  });
-}
+document.querySelectorAll('.popup').forEach(popup => {
+  popup.classList.add('popup_is-animated');
+});
 
 window.addEventListener("load", renderCards);
