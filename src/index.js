@@ -3,6 +3,11 @@ import './pages/index.css';
 import { createCard, deleteCard, toggleLike } from './components/card.js';
 import { openModal, closeModal } from './components/modal.js';
 
+// Установим анимацию всем попапам один раз при загрузке страницы
+document.querySelectorAll('.popup').forEach(popup => {
+  popup.classList.add('popup_is-animated');
+});
+
 // DOM-узлы
 const placesList = document.querySelector(".places__list");
 const popupEdit = document.querySelector('.popup_type_edit');
