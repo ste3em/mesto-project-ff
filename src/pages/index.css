@@ -10,4 +10,33 @@
 @import url('../blocks/popup/popup.css');
 @import url('../blocks/popup/_is-animated/popup_is-animated.css');
 @import url('../blocks/popup/_is-opened/popup_is-opened.css');
+@import url('../blocks/popup/__error/_visible/popup__error_visible.css');
 @import url('../blocks/popup/__error/popup__error.css');
+
+.popup__error_visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup__input_type_error {
+  border-color: #ff0000;
+}
+
+.popup__error {
+  visibility: hidden;
+  display: block;
+  min-height: 14px;
+  margin-top: 5px;
+  opacity: 0;
+  color: #ff0000;
+  font-size: 12px;
+  transition: opacity 0.3s;
+}
+
+.popup__button_disabled {
+  border: none;
+  color: #bcbcbc;
+  background-color: #e5e5e5;
+  cursor: default;
+  pointer-events: none;
+}

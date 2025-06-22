@@ -31,6 +31,7 @@ const profileAvatarModal = document.querySelector(".popup_type_new_avatar");
 const profileAvatarForm = document.forms["new-avatar"];
 const profileAvatarInput = profileAvatarForm.elements["avatar-link"];
 
+
 const newPlaceModal = document.querySelector(".popup_type_new-card");
 const newPlaceForm = document.forms["new-place"];
 const newPlaceButton = document.querySelector(".profile__add-button");
@@ -42,7 +43,6 @@ const imageModalPicture = imageModal.querySelector(".popup__image");
 const imageModalCaption = imageModal.querySelector(".popup__caption");
 
 const confirmModal = document.querySelector(".popup_type_confirm");
-const confirmForm = document.forms["confirm"];
 
 const imageContentTypes = [
   "image/gif",
@@ -70,9 +70,7 @@ const validationConfig = {
 
 function profileFormSubmit(evt) {
   evt.preventDefault();
-  const inputs = Array.from(profileEditForm.querySelectorAll(".popup__input"));
-  inputs.forEach(input => input.disabled = true);
-  renderLoading(profileEditForm, true, "Сохранение...");
+  renderLoading(profileEditForm, true);
   updateUserInfo(
     profileEditForm.elements.name.value,
     profileEditForm.elements.description.value
@@ -80,18 +78,17 @@ function profileFormSubmit(evt) {
     .then((data) => {
       profileName.textContent = data.name;
       profileDescription.textContent = data.about;
-      closeModal(profileEditModal);
     })
     .catch((err) => console.log(err))
     .finally(() => {
       renderLoading(profileEditForm, false);
-      inputs.forEach(input => input.disabled = false);
     });
+  closeModal(profileEditModal);
 }
 
 function newPlaceFormSubmit(evt) {
   evt.preventDefault();
-  renderLoading(newPlaceModal, true, "Сохранение...");
+  renderLoading(newPlaceModal, true);
   const newPlaceCard = {
     name: newPlaceNameInput.value,
     link: newPlaceUrlInput.value,
@@ -101,13 +98,13 @@ function newPlaceFormSubmit(evt) {
       placesList.prepend(
         createCard({ newPlaceCard, pressLike, zoomCard, deleteCallback, user })
       );
-      closeModal(newPlaceModal);
-      newPlaceForm.reset();
     })
     .catch((err) => console.log(err))
     .finally(() => {
       renderLoading(newPlaceModal, false);
     });
+  newPlaceForm.reset();
+  closeModal(newPlaceModal);
 }
 
 function profileAvatarFormSubmit(evt) {
@@ -120,18 +117,18 @@ function profileAvatarFormSubmit(evt) {
           (type) => type === data.headers.get("content-type")
         )
       ) {
-        renderLoading(profileAvatarModal, true, "Сохранение...");
+        renderLoading(profileAvatarModal, true);
         clearValidation(profileAvatarForm, validationConfig);
         profileAvatarForm.reset();
         updateUserAvatar(newAvatarUrl)
           .then((data) => {
             profileAvatar.style = `background-image: url('${data.avatar}');`;
-            closeModal(profileAvatarModal);
           })
           .catch((err) => console.log(err))
           .finally(() => {
             renderLoading(profileAvatarModal, false);
           });
+        closeModal(profileAvatarModal);
       } else {
         showInputError(
           profileAvatarForm,
@@ -151,16 +148,9 @@ function zoomCard(cardName, cardUrl) {
   openModal(imageModal);
 }
 
-function renderLoading(modal, isLoading, loadingText = "Сохранение...") {
-  const button = modal.querySelector(".popup__button");
-  if (!button) return;
-  const originalText = button.dataset.originalText || button.textContent;
-  if (isLoading) {
-    button.dataset.originalText = originalText;
-    button.textContent = loadingText;
-  } else {
-    button.textContent = button.dataset.originalText || "Сохранить";
-  }
+function renderLoading(element, isLoading) {
+  const currentButton = element.querySelector(".popup__button");
+  currentButton.textContent = isLoading ? "Сохранение..." : "Сохранить";
 }
 
 function deleteCallback(card, id) {
@@ -168,22 +158,6 @@ function deleteCallback(card, id) {
   cardIdToDelete = id;
   openModal(confirmModal);
 }
-
-confirmForm.addEventListener("submit", (evt) => {
-  evt.preventDefault();
-  renderLoading(confirmModal, true, "Удаление...");
-  removeCard(cardIdToDelete)
-    .then(() => {
-      cardToDelete.remove();
-      closeModal(confirmModal);
-      cardToDelete = null;
-      cardIdToDelete = null;
-    })
-    .catch((err) => console.log(err))
-    .finally(() => {
-      renderLoading(confirmModal, false);
-    });
-});
 
 profileEditButton.addEventListener("click", () => {
   profileEditForm.elements.name.value = profileName.textContent;
@@ -205,6 +179,16 @@ newPlaceButton.addEventListener("click", () => {
 newPlaceForm.addEventListener("submit", newPlaceFormSubmit);
 profileEditForm.addEventListener("submit", profileFormSubmit);
 profileAvatarForm.addEventListener("submit", profileAvatarFormSubmit);
+
+confirmModal.addEventListener("submit", (evt) => {
+  evt.preventDefault();
+  removeCard(cardIdToDelete)
+    .then(() => {
+      cardToDelete.remove();
+      closeModal(confirmModal);
+    })
+    .catch((err) => console.log(err));
+});
 
 modals.forEach((modal) => {
   modal.querySelector(".popup__close").addEventListener("click", () => {

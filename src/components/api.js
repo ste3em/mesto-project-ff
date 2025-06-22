@@ -1,28 +1,24 @@
 const config = {
-  baseUrl: 'https://nomoreparties.co/v1/wff-cohort-37',
+  baseUrl: 'https://nomoreparties.co/v1/wff-cohort-41',
   headers: {
-    authorization: '214a923f-ee62-4b82-84ef-f3a79defbc14',
+    authorization: '07810aab-04fa-4135-aeb0-9e8915bc0b09',
     'Content-Type': 'application/json'
   }
-};
+}
 
 function handleResponse(res) {
-  if (!res.ok) {
-    return Promise.reject(`Ошибка: ${res.status}`);
+  if (res.ok) {
+    return res.json()
+  } else {
+    return Promise.reject(`Ошибка: ${res.status}`)
   }
-
-  const contentType = res.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    return res.json();
-  }
-
-  return Promise.resolve();
 }
 
 function getUserInfo() {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function updateUserInfo(name, about) {
@@ -30,7 +26,8 @@ function updateUserInfo(name, about) {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({ name, about })
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function updateUserAvatar(avatar) {
@@ -38,13 +35,15 @@ function updateUserAvatar(avatar) {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({ avatar })
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function getInitialCards() {
-  return fetch(`${config.baseUrl}/cards`, {
+  return fetch (`${config.baseUrl}/cards`, {
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function postNewCard(newPlaceCard) {
@@ -55,34 +54,38 @@ function postNewCard(newPlaceCard) {
       name: newPlaceCard.name, 
       link: newPlaceCard.link 
     })
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function removeCard(cardId) {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: 'DELETE',
     headers: config.headers
-  }).then(handleResponse);
+  })
 }
 
 function addLike(cardId) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'PUT',
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function removeLike(cardId) {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'DELETE',
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function checkMimeType(url) {
   return fetch(`${url}`, {
-    method: 'HEAD'
-  }).then(res => res);
+    method: 'HEAD',
+  })
+  .then(res => handleResponse(res))
 }
 
 export {
@@ -95,4 +98,4 @@ export {
   addLike,
   removeLike,
   checkMimeType,
-};
+}
