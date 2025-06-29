@@ -15,69 +15,77 @@ function handleResponse(res) {
 }
 
 function getUserInfo() {
-  return fetch(\`\${config.baseUrl}/users/me\`, {
+  return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function updateUserInfo(name, about) {
-  return fetch(\`\${config.baseUrl}/users/me\`, {
+  return fetch(`${config.baseUrl}/users/me`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({ name, about })
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function updateUserAvatar(avatar) {
-  return fetch(\`\${config.baseUrl}/users/me/avatar\`, {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({ avatar })
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function getInitialCards() {
-  return fetch(\`\${config.baseUrl}/cards\`, {
+  return fetch (`${config.baseUrl}/cards`, {
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
-function postNewCard(placeCardData) {
-  return fetch(\`\${config.baseUrl}/cards\`, {
+function postNewCard(newPlaceCard) {
+  return fetch(`${config.baseUrl}/cards`, {
     method: 'POST',
     headers: config.headers,
     body: JSON.stringify({ 
-      name: placeCardData.name, 
-      link: placeCardData.link 
+      name: newPlaceCard.name, 
+      link: newPlaceCard.link 
     })
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function removeCard(cardId) {
-  return fetch(\`\${config.baseUrl}/cards/\${cardId}\`, {
+  return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: 'DELETE',
     headers: config.headers
-  });
+  })
 }
 
 function addLike(cardId) {
-  return fetch(\`\${config.baseUrl}/cards/likes/\${cardId}\`, {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'PUT',
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 function removeLike(cardId) {
-  return fetch(\`\${config.baseUrl}/cards/likes/\${cardId}\`, {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'DELETE',
     headers: config.headers
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
-function validateImageUrl(url) {
-  return fetch(url, {
+function checkMimeType(url) {
+  return fetch(`${url}`, {
     method: 'HEAD',
-  }).then(handleResponse);
+  })
+  .then(res => handleResponse(res))
 }
 
 export {
@@ -89,5 +97,5 @@ export {
   updateUserAvatar,
   addLike,
   removeLike,
-  validateImageUrl,
-};
+  checkMimeType,
+}
