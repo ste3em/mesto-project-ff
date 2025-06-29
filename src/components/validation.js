@@ -1,98 +1,51 @@
-const allowedFields = ['name', 'description', 'place-name'];
-const nameFieldPattern = /^[A-Za-zА-Яа-яЁё\s\-]+$/;
+export function enableValidation(config) {
+  const forms = document.querySelectorAll(config.formSelector);
 
-function showInputError(formElement, inputElement, errorMessage, config) {
-  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
-  if (!errorElement) return;
-  inputElement.classList.add(config.inputErrorClass);
-  errorElement.textContent = errorMessage;
-  errorElement.classList.add(config.errorClass);
-}
+  forms.forEach(form => {
+    const inputs = form.querySelectorAll('input');
+    const button = form.querySelector('button[type="submit"]');
 
-function hideInputError(formElement, inputElement, config) {
-  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
-  if (!errorElement) return;
-  inputElement.classList.remove(config.inputErrorClass);
-  errorElement.textContent = '';
-  errorElement.classList.remove(config.errorClass);
-}
+    inputs.forEach(input => {
+      const errorEl = createErrorEl(input);
+      input.insertAdjacentElement('afterend', errorEl);
 
-function checkInputValidity(formElement, inputElement, config) {
-  const isNameInput = allowedFields.includes(inputElement.name);
+      input.addEventListener('input', () => {
+        checkValidity(input, errorEl);
+        toggleButton(inputs, button);
+      });
+    });
 
-  // 1. Обязательное поле
-  if (inputElement.validity.valueMissing) {
-    showInputError(formElement, inputElement, 'Вы пропустили это поле', config);
-    return;
-  }
+    toggleButton(inputs, button);
 
-  // 2. Неверный формат URL
-  if (inputElement.type === 'url' && inputElement.validity.typeMismatch) {
-    showInputError(formElement, inputElement, 'Введите адрес сайта.', config);
-    return;
-  }
-
-  // 3. Кастомная проверка по RegExp
-  if (isNameInput && !nameFieldPattern.test(inputElement.value)) {
-    showInputError(formElement, inputElement, inputElement.dataset.errorMessage, config);
-    return;
-  }
-
-  // 4. Браузерные ошибки (например, tooShort, tooLong)
-  if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage, config);
-    return;
-  }
-
-  // 5. Всё в порядке
-  hideInputError(formElement, inputElement, config);
-}
-
-function hasInvalidInput(inputList) {
-  return inputList.some(inputElement => !inputElement.validity.valid ||
-    (allowedFields.includes(inputElement.name) && !nameFieldPattern.test(inputElement.value)));
-}
-
-function toggleButtonState(inputList, buttonElement, config) {
-  if (hasInvalidInput(inputList)) {
-    buttonElement.classList.add(config.inactiveButtonClass);
-    buttonElement.disabled = true;
-  } else {
-    buttonElement.classList.remove(config.inactiveButtonClass);
-    buttonElement.disabled = false;
-  }
-}
-
-function setEventListeners(formElement, config) {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
-  const buttonElement = formElement.querySelector(config.submitButtonSelector);
-
-  toggleButtonState(inputList, buttonElement, config);
-
-  inputList.forEach(inputElement => {
-    inputElement.addEventListener('input', () => {
-      checkInputValidity(formElement, inputElement, config);
-      toggleButtonState(inputList, buttonElement, config);
+    form.addEventListener('submit', (e) => {
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        inputs.forEach(input => checkValidity(input, input.nextElementSibling));
+      }
     });
   });
 }
 
-export function enableValidation(config) {
-  const formList = Array.from(document.querySelectorAll(config.formSelector));
-  formList.forEach(formElement => {
-    setEventListeners(formElement, config);
-  });
+function createErrorEl(input) {
+  const span = document.createElement('span');
+  span.classList.add('error-message');
+  span.id = `${input.name}-error`;
+  return span;
 }
 
-export function clearValidation(formElement, config) {
-  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
-  const buttonElement = formElement.querySelector(config.submitButtonSelector);
-
-  inputList.forEach(inputElement => {
-    hideInputError(formElement, inputElement, config);
-  });
-
-  toggleButtonState(inputList, buttonElement, config);
+function checkValidity(input, errorEl) {
+  if (!input.validity.valid) {
+    input.classList.add('input-error');
+    errorEl.textContent = input.validationMessage;
+    errorEl.classList.add('error-message_visible');
+  } else {
+    input.classList.remove('input-error');
+    errorEl.textContent = '';
+    errorEl.classList.remove('error-message_visible');
+  }
 }
 
-export { showInputError };
+function toggleButton(inputs, button) {
+  const hasError = [...inputs].some(i => !i.validity.valid);
+  button.disabled = hasError;
+}
