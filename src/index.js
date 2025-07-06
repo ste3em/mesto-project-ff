@@ -1,6 +1,6 @@
 import "./pages/index.css";
 import { createCard, handleCardLike } from "./components/card.js";
-import { openModal, closeModal } from "./components/modal.js";
+import { openModal, closeModal, setModalWindowEventListeners } from "./components/modal.js";
 import {
   enableValidation,
   clearValidation,
@@ -98,7 +98,6 @@ function handleAddCardFormSubmit(evt) {
         createCard({ cardData, handleCardLike, handleCardZoom, deleteCallback, user })
       );
       addCardForm.reset();
-      clearValidation(addCardForm, validationConfig);
       closeModal(addCardModal);
     })
     .catch((err) => console.log(err))
@@ -122,7 +121,6 @@ function handleAvatarFormSubmit(evt) {
           .then((data) => {
             avatarEditButton.style = `background-image: url('${data.avatar}');`;
             avatarForm.reset();
-            clearValidation(avatarForm, validationConfig);
             closeModal(profileAvatarModal);
           })
           .catch((err) => console.log(err))
@@ -167,13 +165,15 @@ editProfileButton.addEventListener("click", () => {
 });
 
 avatarEditButton.addEventListener("click", () => {
+  avatarForm.reset();
+  clearValidation(avatarForm, validationConfig);
   openModal(profileAvatarModal);
 });
 
 addCardButton.addEventListener("click", () => {
-  openModal(addCardModal);
   addCardForm.reset();
   clearValidation(addCardForm, validationConfig);
+  openModal(addCardModal);
 });
 
 addCardForm.addEventListener("submit", handleAddCardFormSubmit);
@@ -193,16 +193,8 @@ confirmDeleteModal.addEventListener("submit", (evt) => {
     });
 });
 
-modals.forEach((modal) => {
-  modal.querySelector(".popup__close").addEventListener("click", () => {
-    closeModal(modal);
-  });
-  modal.addEventListener("click", (evt) => {
-    if (evt.target === evt.currentTarget) {
-      closeModal(modal);
-    }
-  });
-});
+// навешиваем обработчики закрытия на все модалки
+modals.forEach(setModalWindowEventListeners);
 
 enableValidation(validationConfig);
 

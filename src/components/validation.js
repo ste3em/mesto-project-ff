@@ -1,6 +1,3 @@
-const allowedFields = ['name', 'description', 'place-name'];
-const nameFieldPattern = /^[A-Za-zА-Яа-яЁё\s\-]+$/;
-
 function showInputError(formElement, inputElement, errorMessage, config) {
   const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
   if (!errorElement) return;
@@ -18,48 +15,48 @@ function hideInputError(formElement, inputElement, config) {
 }
 
 function checkInputValidity(formElement, inputElement, config) {
-  const isNameInput = allowedFields.includes(inputElement.name);
-
-  // 1. Обязательное поле
   if (inputElement.validity.valueMissing) {
     showInputError(formElement, inputElement, 'Вы пропустили это поле', config);
     return;
   }
 
-  // 2. Неверный формат URL
   if (inputElement.type === 'url' && inputElement.validity.typeMismatch) {
     showInputError(formElement, inputElement, 'Введите адрес сайта.', config);
     return;
   }
 
-  // 3. Кастомная проверка по RegExp
-  if (isNameInput && !nameFieldPattern.test(inputElement.value)) {
+  if (inputElement.validity.patternMismatch) {
     showInputError(formElement, inputElement, inputElement.dataset.errorMessage, config);
     return;
   }
 
-  // 4. Браузерные ошибки (например, tooShort, tooLong)
   if (!inputElement.validity.valid) {
     showInputError(formElement, inputElement, inputElement.validationMessage, config);
     return;
   }
 
-  // 5. Всё в порядке
   hideInputError(formElement, inputElement, config);
 }
 
 function hasInvalidInput(inputList) {
-  return inputList.some(inputElement => !inputElement.validity.valid ||
-    (allowedFields.includes(inputElement.name) && !nameFieldPattern.test(inputElement.value)));
+  return inputList.some(inputElement => !inputElement.validity.valid);
 }
+
+const disableSubmitButton = (buttonElement, config) => {
+  buttonElement.classList.add(config.inactiveButtonClass);
+  buttonElement.disabled = true;
+};
+
+const enableSubmitButton = (buttonElement, config) => {
+  buttonElement.classList.remove(config.inactiveButtonClass);
+  buttonElement.disabled = false;
+};
 
 function toggleButtonState(inputList, buttonElement, config) {
   if (hasInvalidInput(inputList)) {
-    buttonElement.classList.add(config.inactiveButtonClass);
-    buttonElement.disabled = true;
+    disableSubmitButton(buttonElement, config);
   } else {
-    buttonElement.classList.remove(config.inactiveButtonClass);
-    buttonElement.disabled = false;
+    enableSubmitButton(buttonElement, config);
   }
 }
 
@@ -92,7 +89,7 @@ export function clearValidation(formElement, config) {
     hideInputError(formElement, inputElement, config);
   });
 
-  toggleButtonState(inputList, buttonElement, config);
+  disableSubmitButton(buttonElement, config);
 }
 
 export { showInputError };

@@ -7,11 +7,16 @@ const config = {
 }
 
 function handleResponse(res) {
-  if (res.ok) {
-    return res.json()
-  } else {
-    return Promise.reject(`Ошибка: ${res.status}`)
+  if (!res.ok) {
+    return Promise.reject(`Ошибка: ${res.status}`);
   }
+
+  const contentType = res.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    return res.json();
+  }
+
+  return Promise.resolve(); // Пустой ответ, но статус 2xx
 }
 
 function getUserInfo() {
@@ -82,10 +87,7 @@ function removeLike(cardId) {
 }
 
 function checkMimeType(url) {
-  return fetch(`${url}`, {
-    method: 'HEAD',
-  })
-  .then(res => handleResponse(res))
+  return fetch(url, { method: "HEAD" }); // ← ничего не вызываем
 }
 
 export {
