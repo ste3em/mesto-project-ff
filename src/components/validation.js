@@ -15,16 +15,6 @@ function hideInputError(formElement, inputElement, config) {
 }
 
 function checkInputValidity(formElement, inputElement, config) {
-  if (inputElement.validity.valueMissing) {
-    showInputError(formElement, inputElement, 'Вы пропустили это поле', config);
-    return;
-  }
-
-  if (inputElement.type === 'url' && inputElement.validity.typeMismatch) {
-    showInputError(formElement, inputElement, 'Введите адрес сайта.', config);
-    return;
-  }
-
   if (inputElement.validity.patternMismatch) {
     showInputError(formElement, inputElement, inputElement.dataset.errorMessage, config);
     return;
@@ -89,7 +79,7 @@ export function clearValidation(formElement, config) {
     hideInputError(formElement, inputElement, config);
   });
 
-  disableSubmitButton(buttonElement, config);
+  toggleButtonState(inputList, buttonElement, config);
 }
 
 export { showInputError };
